@@ -83,7 +83,7 @@ READDATA:
     cmp byte [ HEADNUMBER ], 0x00
     jne READDATA
 
-    add byte [ TRACKNUMBER ] 0x01
+    add byte [ TRACKNUMBER ], 0x01
     jmp READDATA
 
 READEND:
@@ -104,7 +104,7 @@ HANDLEDISKERROR:
     jmp $
 
 PRINTMESSAGE:
-    push dp
+    push bp
     mov bp, sp
 
     push es
