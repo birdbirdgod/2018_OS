@@ -128,7 +128,7 @@ READEND:
 	; OS이미지 로딩이 완료되었다는 메시지 출력
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	push LOADINGCOMPLETEMESSAGE
-	push 2
+	push 1
 	push 20
 	call PRINTMESSAGE
 	add sp,6
