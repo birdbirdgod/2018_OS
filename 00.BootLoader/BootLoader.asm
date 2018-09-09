@@ -36,6 +36,8 @@ START:
 	add di, 2	;i+=2 di는 비디오 메모리 다음위치로 이동(문자,속성 쌍이므로 2씩 이동)
 
 	jmp .MESSAGELOOP ;while문
+.MESSAGEEND:
+
 
 MESSAGE1: db 'MINT64 OS Boot Loader Start~', 0 ;마지막을 0으로 해서 MESSAGEEND로 감
 
