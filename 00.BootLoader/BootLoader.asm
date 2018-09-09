@@ -3,6 +3,12 @@
 
 SECTION .text
 
+mov ax,0xB800
+mov ds, ax	;0xB800을 기준어드레스로 설정
+
+mov byte [ 0x00 ], 'M'	;0xB800:0x0000에 문자 복사
+mov byte [ 0x01 ], 0x4A	;0xB800:0x0001에 속성복사
+
 jmp $
 
 times 510 - ($ - $$)    db    0x00
