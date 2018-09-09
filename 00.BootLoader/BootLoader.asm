@@ -180,7 +180,7 @@ PRINTMESSAGE:
 	mov ax, word[ bp+4 ]
 	mov si, 2	; 한문자를 나타내는 바이트수(2)를 si레지스터에 설정
 	mul si		; X어드레스 계산
-	add di, si	; di레지스터에 총 좌표값을 설정
+	add di, ax	; di레지스터에 총 좌표값을 설정
 
 	mov si,  word[ bp+8 ]	;출력할 문자열주소를 si레지스터에 설정
 
