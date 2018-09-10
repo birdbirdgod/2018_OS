@@ -40,75 +40,9 @@ START:
     push 0
     call PRINTMESSAGE
     add sp, 6
+
+    call PRINTCURRENTTIME
     
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-    ; 인터럽트 번호 1a 기능 번호 02
-    mov ah, 0x02
-    int 0x1a
-
-    ; ch 시간  cl 분  dh 초
-    mov ax, 0xB800
-    mov es, ax
-
-    ; 2번째 줄
-    mov ax, 2
-    mov si, ax
-    
-    mov cl, ch
-    and cx, 0xf0
-    mov ax, cx
-    mov dl, 16
-    div dl
-    mov cx, ax
-    add cx, 0x30
-
-    mov byte [ es: si + ( 160 * 1 + 13 * 2 ) ], cl
-
-    mov cl, ch
-    and cx, 0xf
-    add cx, 0x30
-    mov byte [ es: si + ( 160 * 1 + 14 * 2 ) ], cl
-
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-    ; 분
-    mov ah, 0x02
-    int 0x1a
-
-    and cx, 0xf0
-    mov ax, cx
-    mov dl, 16
-    div dl
-    mov cx, ax
-    add cx, 0x30
-
-    mov byte [ es: si + ( 160 * 1 + 15 * 2 ) ], cl
-
-    mov ah, 0x02
-    int 0x1a
-
-    and cx, 0xf
-    add cx, 0x30
-    mov byte [ es: si + ( 160 * 1 + 16 * 2 ) ], cl
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    mov cl, dh
-    and cx, 0xf0
-    mov ax, cx
-    mov dl, 16
-    div dl
-    mov cx, ax
-    add cx, 0x30
-
-    mov byte [ es: si + ( 160 * 1 + 17 * 2 ) ], cl
-
-    mov cl, dh
-    and cx, 0xf
-    add cx, 0x30
-    mov byte [ es: si + ( 160 * 1 + 18 * 2 ) ], cl
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
     push IMAGELOADINGMESSAGE
     push 2
     push 0
@@ -224,6 +158,80 @@ PRINTMESSAGE:
     pop si
     pop es
     pop bp
+    ret
+
+PRINTCURRENTTIME:
+
+    push es
+    push si
+
+    ; ch 시간 / cl 분, dh 초
+    ; 인터럽트 번호 1a / 기능 번호 02
+    mov ah, 0x02
+    int 0x1a
+
+    ; B800 비디오 출력 메모리 시작 주소
+    mov ax, 0xB800
+    mov es, ax
+
+    ; 2 번째 줄부터 출력
+    mov ax, 2
+    mov si, ax
+
+    ;HOUR 1 글자;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    mov ax, 0x00
+    mov al, ch
+    and ax, 0xf0
+    mov dl, 16
+    div dl
+    add ax, 0x30
+
+    mov byte [ es: si + ( 160 * 1 + 13 * 2 ) ], al
+    ;HOUR 2 글자;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    mov ax, 0x00
+    mov al, ch
+    and ax, 0x0f
+    add ax, 0x30
+
+    mov byte [ es: si + ( 160 * 1 + 14 * 2 ) ], al
+    ;MINUTE 1 글자;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    mov ax, 0x00
+    mov al, cl
+    and ax, 0xf0
+    mov dl, 16
+    div dl
+    add ax, 0x30
+
+    mov byte [ es: si + ( 160 * 1 + 16 * 2 ) ], al
+    ;MINUTE 2 글자;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    mov ax, 0x00
+    mov al, cl
+    and ax, 0x0f
+    add ax, 0x30
+
+    mov byte [ es: si + ( 160 * 1 + 17 * 2 ) ], al
+    ;SECOND 1 글자;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    mov ax, 0x00
+    mov al, dh
+    and ax, 0xf0
+    mov dl, 16
+    div dl
+    add ax, 0x30
+    mov byte [ es: si + ( 160 * 1 + 18 * 2 ) ], ':'
+
+    mov byte [ es: si + ( 160 * 1 + 19 * 2 ) ], al
+    ;MINUTE 2 글자;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    mov ax, 0x00
+    mov al, dh
+    and ax, 0x0f
+    add ax, 0x30
+
+    mov byte [ es: si + ( 160 * 1 + 20 * 2 ) ], al
+
+    mov byte [ es: si + ( 160 * 1 + 15 * 2 ) ], ':'
+
+    pop si
+    pop es
     ret
 
 ;;;;;;;;;;;
