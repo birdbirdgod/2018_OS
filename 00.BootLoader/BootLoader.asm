@@ -35,8 +35,82 @@ START:
     call PRINTMESSAGE
     add  sp, 6
 
-    push IMAGELOADINGMESSAGE
+    push CURRENTTIMEMESSAGE
     push 1
+    push 0
+    call PRINTMESSAGE
+    add sp, 6
+    
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+    ; 인터럽트 번호 1a 기능 번호 02
+    mov ah, 0x02
+    int 0x1a
+
+    ; ch 시간  cl 분  dh 초
+    mov ax, 0xB800
+    mov es, ax
+
+    ; 2번째 줄
+    mov ax, 2
+    mov si, ax
+    
+    mov cl, ch
+    and cx, 0xf0
+    mov ax, cx
+    mov dl, 16
+    div dl
+    mov cx, ax
+    add cx, 0x30
+
+    mov byte [ es: si + ( 160 * 1 + 13 * 2 ) ], cl
+
+    mov cl, ch
+    and cx, 0xf
+    add cx, 0x30
+    mov byte [ es: si + ( 160 * 1 + 14 * 2 ) ], cl
+
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+    ; 분
+    mov ah, 0x02
+    int 0x1a
+
+    and cx, 0xf0
+    mov ax, cx
+    mov dl, 16
+    div dl
+    mov cx, ax
+    add cx, 0x30
+
+    mov byte [ es: si + ( 160 * 1 + 15 * 2 ) ], cl
+
+    mov ah, 0x02
+    int 0x1a
+
+    and cx, 0xf
+    add cx, 0x30
+    mov byte [ es: si + ( 160 * 1 + 16 * 2 ) ], cl
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    mov cl, dh
+    and cx, 0xf0
+    mov ax, cx
+    mov dl, 16
+    div dl
+    mov cx, ax
+    add cx, 0x30
+
+    mov byte [ es: si + ( 160 * 1 + 17 * 2 ) ], cl
+
+    mov cl, dh
+    and cx, 0xf
+    add cx, 0x30
+    mov byte [ es: si + ( 160 * 1 + 18 * 2 ) ], cl
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+    push IMAGELOADINGMESSAGE
+    push 2
     push 0
     call PRINTMESSAGE
     add sp, 6
@@ -88,7 +162,7 @@ READDATA:
 
 READEND:
     push LOADINGCOMPLETEMESSAGE
-    push 1
+    push 2
     push 20
     call PRINTMESSAGE
     add sp, 6
@@ -97,7 +171,7 @@ READEND:
 
 HANDLEDISKERROR:
     push DISKERRORMESSAGE
-    push 1
+    push 2
     push 20
     call PRINTMESSAGE
 
@@ -161,6 +235,8 @@ MESSAGE1:               db 'MINT64 OS Boot Loader Start~!!', 0
 DISKERRORMESSAGE:       db 'DISK Error~!!', 0
 IMAGELOADINGMESSAGE:    db 'OS Image Loading...', 0
 LOADINGCOMPLETEMESSAGE: db 'Complete~!!', 0
+
+CURRENTTIMEMESSAGE:		db 'Current Time: ', 0
 
 SECTORNUMBER: db 0x02
 HEADNUMBER:   db 0x00
