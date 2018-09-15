@@ -35,8 +35,16 @@ START:
     call PRINTMESSAGE
     add  sp, 6
 
-    push IMAGELOADINGMESSAGE
+    push CURRENTTIMEMESSAGE
     push 1
+    push 0
+    call PRINTMESSAGE
+    add sp, 6
+
+    call PRINTCURRENTTIME
+    
+    push IMAGELOADINGMESSAGE
+    push 2
     push 0
     call PRINTMESSAGE
     add sp, 6
@@ -88,7 +96,7 @@ READDATA:
 
 READEND:
     push LOADINGCOMPLETEMESSAGE
-    push 1
+    push 2
     push 20
     call PRINTMESSAGE
     add sp, 6
@@ -97,7 +105,7 @@ READEND:
 
 HANDLEDISKERROR:
     push DISKERRORMESSAGE
-    push 1
+    push 2
     push 20
     call PRINTMESSAGE
 
@@ -152,6 +160,77 @@ PRINTMESSAGE:
     pop bp
     ret
 
+PRINTCURRENTTIME:
+
+    push es
+    push ax
+
+    ; ch 시간 / cl 분, dh 초
+    ; 인터럽트 번호 1a / 기능 번호 02
+    mov ah, 0x02
+    int 0x1a
+
+    ; B800 비디오 출력 메모리 시작 주소
+    mov ax, 0xB800
+    mov es, ax
+
+
+    ;HOUR 1 글자;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    mov ax, 0x00
+    mov al, ch
+    and ax, 0xf0
+    mov dl, 16
+    div dl
+    add ax, 0x30
+
+    mov byte [ es: ( 160 * 1 + 14 * 2 ) ], al
+    ;HOUR 2 글자;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    mov ax, 0x00
+    mov al, ch
+    and ax, 0x0f
+    add ax, 0x30
+
+    mov byte [ es: ( 160 * 1 + 15 * 2 ) ], al
+    ;MINUTE 1 글자;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    mov ax, 0x00
+    mov al, cl
+    and ax, 0xf0
+    mov dl, 16
+    div dl
+    add ax, 0x30
+
+    mov byte [ es: ( 160 * 1 + 17 * 2 ) ], al
+    ;MINUTE 2 글자;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    mov ax, 0x00
+    mov al, cl
+    and ax, 0x0f
+    add ax, 0x30
+
+    mov byte [ es: ( 160 * 1 + 18 * 2 ) ], al
+    ;SECOND 1 글자;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    mov ax, 0x00
+    mov al, dh
+    and ax, 0xf0
+    mov dl, 16
+    div dl
+    add ax, 0x30
+
+    mov byte [ es: ( 160 * 1 + 20 * 2 ) ], al
+    ;MINUTE 2 글자;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    mov ax, 0x00
+    mov al, dh
+    and ax, 0x0f
+    add ax, 0x30
+
+    mov byte [ es: ( 160 * 1 + 21 * 2 ) ], al
+
+    mov byte [ es: ( 160 * 1 + 16 * 2 ) ], ':'
+    mov byte [ es: ( 160 * 1 + 19 * 2 ) ], ':'
+
+    pop ax
+    pop es
+    ret
+
 ;;;;;;;;;;;
 ; DATA 영역
 ;;;;;;;;;;;
@@ -161,6 +240,8 @@ MESSAGE1:               db 'MINT64 OS Boot Loader Start~!!', 0
 DISKERRORMESSAGE:       db 'DISK Error~!!', 0
 IMAGELOADINGMESSAGE:    db 'OS Image Loading...', 0
 LOADINGCOMPLETEMESSAGE: db 'Complete~!!', 0
+
+CURRENTTIMEMESSAGE:		db 'Current Time: ', 0
 
 SECTORNUMBER: db 0x02
 HEADNUMBER:   db 0x00

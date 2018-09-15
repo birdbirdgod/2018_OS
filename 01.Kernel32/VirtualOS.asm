@@ -21,7 +21,7 @@ START:
         mul word [ SECTORCOUNT ]
         mov si, ax
 
-        mov byte [ es: si + ( 160 * 2 ) ], '0' + ( i % 10)
+        mov byte [ es: si + ( 160 * 3 ) ], '0' + ( i % 10)
         add word [ SECTORCOUNT ], 1
 
         %if i == TOTALSECTORCOUNT
