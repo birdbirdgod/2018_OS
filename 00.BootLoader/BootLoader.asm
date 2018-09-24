@@ -9,7 +9,7 @@ jmp 0x07C0:START
 ;MINT64 OS에 관련된 환경설정 값
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-TOTALSECTORCOUNT: dw 1024	;부트로더를 제외한 MINT64 OS 이미지 크기
+TOTALSECTORCOUNT: dw 1	;부트로더를 제외한 MINT64 OS 이미지 크기
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
