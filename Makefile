@@ -27,12 +27,22 @@ Disk.img: 00.BootLoader/BootLoader.bin 01.Kernel32/Kernel32.bin
 	@echo =========== Disk Image Build Start ===========
 	@echo 
 
-	cat $^ > Disk.img
+	./ImageMaker.exe $^
 
 	@echo 
 	@echo ============= All Build Complete =============
 	@echo 
 
+Utility:
+	@echo
+	@echo ============ Utility Build Start ==============
+	@echo
+
+	make -C 04.Utility
+
+	@echo
+	@echo =========== Utility Build Complete =============
+	@echo
 run:
 	qemu-system-x86_64 -L . -m 64 -fda Disk.img -localtime -M pc -rtc base=localtime
 clean:
