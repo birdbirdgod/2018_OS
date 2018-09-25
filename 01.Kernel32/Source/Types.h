@@ -1,4 +1,4 @@
-#ifdef __TYPES_H__
+#ifndef __TYPES_H__
 #define __TYPES_H__
 
 #define BYTE unsigned char

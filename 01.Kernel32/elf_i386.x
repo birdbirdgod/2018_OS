@@ -3,7 +3,7 @@ OUTPUT_FORMAT("elf32-i386", "elf32-i386",
 	      "elf32-i386")
 OUTPUT_ARCH(i386)
 ENTRY(_start)
-SEARCH_DIR("/usr/cross/x86_64-pc-linux/lib");
+SEARCH_DIR("/usr/bin/");
 SECTIONS
 {
   /* Read-only sections, merged into text segment: */

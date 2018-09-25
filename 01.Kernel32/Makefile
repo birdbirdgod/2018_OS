@@ -1,7 +1,7 @@
 NASM32 = nasm
-GCC32 = x86_64-pc-linus-gcc.exe -c -m32 -ffreestanding
-LD32 = x86+64-pc-linux-ld.exe -melf_i386 -T ../elf_i386.x -nostdlib -e Main -Ttext 0x10200
-OBJCOPY32 = x86_64-pc-linus-objcopy -j .text -j .data -j .rodata -j .bss -S -O binary
+GCC32 =/usr/bin/x86_64-linux-gnu-gcc -c -m32 -ffreestanding
+LD32 = /usr/bin/x86_64-linux-gnu-ld -melf_i386 -T ../elf_i386.x -nostdlib -e Main -Ttext 0x10200
+OBJCOPY32 = /usr/bin/x86_64-linux-gnu-objcopy -j .text -j .data -j .rodata -j .bss -S -O binary
 
 OBJECTDIRECTORY = Temp
 SOURCEDIRECTORY = Source
@@ -40,7 +40,7 @@ CENTRYPOINTOBJECTFILE = Main.o
 CSOURCEFILES = $(wildcard ../$(SOURCEDIRECTORY)/*.c)
 ASSEMBLYSOURCEFILES = $(wildcard ../(SOURCEDIRECTORY)/*.asm)
 COBJECTFILES = $(subst Main.o, , $(notdir $(patsubst %.c,%.o,$(CSOURCEFILES))))
-ASSEMBLYSOURCEFILES = $(notdir $(patsubst %.asm,%.o,$(ASSEMBLYSOURCEFILES)))
+ASSEMBLYOBJECTFILES = $(notdir $(patsubst %.asm,%.o,$(ASSEMBLYSOURCEFILES)))
 
 %.o: ../$(SOURCEDIRECTORY)/%.c
 		$(GCC32) -c $<
@@ -49,9 +49,9 @@ ASSEMBLYSOURCEFILES = $(notdir $(patsubst %.asm,%.o,$(ASSEMBLYSOURCEFILES)))
 		$(NASM32) -f elf32 -o $@ $<
 
 InternalDependency:
-	$(GCC32) -MM $(SOURCEDIRECTORY) > Dependency.dep
+	$(GCC32) -MM $(CSOURCEFILES) > Dependency.dep
 
-Kernel32.elf: $(CENTRYPOINTOBJECTFILE) $(COBJECTFILES) $(ASSEMBLYSOURCEFILES)
+Kernel32.elf: $(CENTRYPOINTOBJECTFILE) $(COBJECTFILES) $(ASSEMBLYOBJECTFILES)
 	$(LD32) -o $@ $^
 
 ifeq (Dependency.dep, $(wildcard Dependency.dep))
