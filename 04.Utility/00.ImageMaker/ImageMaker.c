@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
 	iBootLoaderSize = AdjustInSectorSize(iTargetFd, iSourceSize);
 	printf("[INFO] %s size = [%d] and sector count = [%d]\n",argv[1],iSourceSize,iBootLoaderSize);
 
-	printf("[INFO] Copy protected mode kernel to image fail\n");
+	printf("[INFO] Copy protected mode kernel to image file\n");
 
 	if((iSourceFd = open(argv[2],O_RDONLY)) == -1)
 	{
