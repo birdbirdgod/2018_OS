@@ -11,6 +11,7 @@
 int AdjustInSectorSize(int iFd,int iSourceSize);
 void WriteKernelInformation(int iTargetFd, int iKernelSectorCount);
 int CopyFile(int iSourceFd, int iTargetFd);
+void CalculateHash(const char* fileName,int iTargetFd,int iSourceFileSize);
 
 int main(int argc, char* argv[])
 {
@@ -19,6 +20,7 @@ int main(int argc, char* argv[])
 	int iBootLoaderSize;
 	int iKernel32SectorCount;
 	int iSourceSize;
+	int lPosition;
 
 	if(argc<3)
 	{
@@ -60,6 +62,28 @@ int main(int argc, char* argv[])
 	iKernel32SectorCount = AdjustInSectorSize(iTargetFd,iSourceSize);
 	printf("[INFO] %s size = [%d] and sector count = [%d]\n",argv[2],iSourceSize,iKernel32SectorCount);
 
+	
+	printf("\n***********************************************\n");
+	CalculateHash(argv[2],iTargetFd,iSourceSize);
+	lPosition = lseek(iTargetFd,(off_t)512,SEEK_SET);
+	if(lPosition == -1)
+	{
+		fprintf(stderr, "[ERROR] lseek fail.");
+		exit(-1);
+	}
+	if((iSourceFd = open(argv[2],O_RDONLY)) == -1)
+	{
+		fprintf(stderr,"[ERROR] %s open fail\n",argv[2]);
+		exit(-1);
+	}
+	iSourceSize = CopyFile(iSourceFd,iTargetFd);
+	close(iSourceFd);
+
+	iKernel32SectorCount = AdjustInSectorSize(iTargetFd,iSourceSize);
+	printf("[INFO] %s size = [%d] and sector count = [%d]\n",argv[2],iSourceSize,iKernel32SectorCount);
+
+	printf("\n*************************************************\n");
+	
 	printf("[INFO] Start to write kernel information\n");
 	WriteKernelInformation(iTargetFd, iKernel32SectorCount);
 	printf("[INFO] Image file create complete\n");
@@ -82,7 +106,6 @@ int AdjustInSectorSize(int iFd, int iSourceSize)
 	{
 		iAdjustSizeToSector = 512 - iAdjustSizeToSector;
 		printf("[INFO] File size [%lu] and fill [%u] byte\n",iSourceSize,iAdjustSizeToSector);
-
 		for(i=0;i<iAdjustSizeToSector;++i)
 		{
 			write(iFd,&cCh,1);
@@ -141,5 +164,88 @@ int CopyFile(int iSourceFd, int iTargetFd)
 			break;
 		}
 	}
+	printf("\niSourceFileSize : %d\n",iSourceFileSize);
 	return iSourceFileSize;
 }
+
+void CalculateHash(const char* fileName,int iTargetFd, int iSourceSize){
+	char byteHash[4] = {'\0',};
+	int iRead;
+	int iWrite;
+	char vcBuffer[4];
+	long lPosition;
+	unsigned short usData;
+	int iSourceFd;
+	int count=0;
+	char tpBuffer[iSourceSize];
+
+	
+	lPosition = lseek(iTargetFd,(off_t)512,SEEK_SET);
+	if(lPosition == -1)
+	{
+		fprintf(stderr, "[ERROR] lseek fail.");
+		exit(-1);
+	}
+	while(1){
+		
+		iRead = read(iTargetFd,vcBuffer,sizeof(vcBuffer));
+
+		if(count==0)
+			for(int i=0;i<sizeof(vcBuffer);++i)
+				byteHash[i] = vcBuffer[i];
+		else
+		for(int i=0;i<sizeof(vcBuffer);++i)
+			byteHash[i] ^= vcBuffer[i];
+
+		if(iRead!=sizeof(vcBuffer))
+			break;
+		
+		count++;
+	}
+
+
+	if((iSourceFd = open(fileName,O_RDWR)) == -1)
+	{
+		fprintf(stderr,"[ERROR] %s open fail\n",fileName);
+		exit(-1);
+	}
+		iRead = read(iSourceFd,tpBuffer,sizeof(tpBuffer));
+
+	lPosition = lseek(iSourceFd,(off_t)4,SEEK_SET);
+	if(lPosition == -1)
+	{
+		fprintf(stderr, "[ERROR] lseek fail.");
+		exit(-1);
+	}
+
+	write(iSourceFd,tpBuffer,sizeof(tpBuffer));
+	printf("Hash value : ");
+	
+	lPosition = lseek(iSourceFd,(off_t)0,SEEK_SET);
+	if(lPosition == -1)
+	{
+		fprintf(stderr, "[ERROR] lseek fail.");
+		exit(-1);
+	}
+	
+	for(int i=0;i<sizeof(byteHash);++i){
+	//	usData = (unsigned short)byteHash[i];
+		write(iSourceFd,&byteHash[i],1);
+		printf("%x ",byteHash[i]);
+	}
+
+
+	close(iSourceFd);
+	printf("\n");
+}
+
+
+	
+
+	
+
+
+
+
+
+
