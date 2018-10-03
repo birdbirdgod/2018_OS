@@ -4,7 +4,7 @@
 SECTION .text
 
 START:
-	mov ax, 0x1004
+	mov ax, 0x1000
 
 	mov ds, ax
 	mov es, ax
@@ -15,7 +15,7 @@ START:
 	mov eax, 0x4000003B
 	mov cr0, eax
 
-	jmp dword 0x08: (PROTECTEDMODE - $$ + 0x10004)
+	jmp dword 0x08: (PROTECTEDMODE - $$ + 0x10000)
 
 [BITS 32]
 PROTECTEDMODE:
@@ -30,7 +30,7 @@ PROTECTEDMODE:
 	mov esp, 0xFFFE
 	mov ebp, 0xFFFE
 
-	push (SWITCHSUCCESSMESSAGE - $$ + 0x10004)
+	push (SWITCHSUCCESSMESSAGE - $$ + 0x10000)
 	push 3
 	push 0
 	call PRINTMESSAGE
@@ -88,7 +88,7 @@ dw 0x0000
 
 GDTR:
 	dw GDTEND - GDT - 1
-	dd (GDT - $$ + 0x10004)
+	dd (GDT - $$ + 0x10000)
 
 GDT:
 	NULLDescriptor:
@@ -114,9 +114,10 @@ GDT:
 		db 0x92
 		db 0xCF
 		db 0x00
+
 GDTEND:
 
 SWITCHSUCCESSMESSAGE: db 'Switch To Protected Mode Success~!!', 0
 
 
-times 508 - ($ - $$) db 0x00
+times 512 - ($ - $$) db 0x00
